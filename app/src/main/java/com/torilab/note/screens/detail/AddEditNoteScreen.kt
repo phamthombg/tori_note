@@ -1,40 +1,16 @@
 package com.torilab.note.screens.detail
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.torilab.note.R
-import com.torilab.note.screens.list.DeleteNoteDialogState
-import com.torilab.note.ui.dialog.ConfirmDialog
-import com.torilab.note.ui.utils.rememberSafeClick
+import com.torilab.note.screens.list.DeleteNoteState
 import com.torilab.note.ui.utils.showMySnackbar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,126 +19,84 @@ fun AddEditNoteScreen(
     onBack: () -> Unit
 ) {
     val viewModel: AddEditNoteViewModel = hiltViewModel()
-
-    val state = viewModel.noteState.collectAsState()
-    // state of delete note dialog, default is Hide state
-    var deleteNodeDialogState: DeleteNoteDialogState by remember {
-        mutableStateOf(
-            DeleteNoteDialogState.Hide
-        )
-    }
     val snackBarHostState = remember { SnackbarHostState() }
+    val state = viewModel.noteState.collectAsState()
+
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = if (state.value.id == 0L) {
-                            stringResource(R.string.add_note)
-                        } else {
-                            stringResource(R.string.edit_note)
-                        }
+    LaunchedEffect(Unit) {
+        viewModel.addUpdateNoteState.collect { state ->
+            // handle state when save note
+            when (state) {
+                // Success state
+                is AddUpdateNoteState.Success -> {
+                    snackBarHostState.showMySnackbar(
+                        context.getString(R.string.save_note_success_message),
+                        scope
                     )
-                }, navigationIcon = {
-                    val safeClick = rememberSafeClick()
-                    IconButton(
-                        onClick = {
-                            safeClick {
-                                onBack()
-                            }
-                        }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                actions = {
-                    if (state.value.id != 0L) {
-                        val safeClick = rememberSafeClick()
-                        IconButton(onClick = {
-                            safeClick {
-                                deleteNodeDialogState = DeleteNoteDialogState.Show(state.value.id)
-                            }
-                        }) {
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = "Search"
-                            )
-                        }
-                    }
-                })
-        },
-        snackbarHost = {
-            SnackbarHost(snackBarHostState)
-        },
+                }
+                // Fail state
+                is AddUpdateNoteState.Error -> {
+                    snackBarHostState.showMySnackbar(
+                        context.getString(R.string.save_note_failed_message),
+                        scope
+                    )
+                }
+            }
+        }
 
-        floatingActionButton = {
-            val safeClick = rememberSafeClick()
-            FloatingActionButton(
-                onClick = {
-                    safeClick {
-                        if (viewModel.isValid()) {
-                            viewModel.saveNote()
-                            onBack()
-                        } else {
-                            snackBarHostState.showMySnackbar(
-                                message = context.getString(R.string.input_wrong_message),
-                                scope
-                            )
-                        }
-                    }
-                }) {
-                Icon(
-                    Icons.Default.Check, contentDescription = stringResource(R.string.add_note)
+        viewModel.deleteNoteState.collect { state ->
+            // handle state when delete note
+            when (state) {
+                // Success state
+                is DeleteNoteState.Success -> {
+                    snackBarHostState.showMySnackbar(
+                        context.getString(R.string.delete_note_success_message),
+                        scope
+                    )
+                }
+                // Fail state
+                is DeleteNoteState.Error -> {
+                    snackBarHostState.showMySnackbar(
+                        context.getString(R.string.delete_note_failed_message),
+                        scope
+                    )
+                }
+            }
+        }
+    }
+
+    AddEditNoteContent(
+        noteUiState = state.value,
+        snackBarHostState = snackBarHostState,
+        onDeleteNote = { noteId ->
+            viewModel.deleteNote(noteId)
+            onBack()
+        },
+        onSaveNoteClicked = {
+            if (viewModel.isValid()) {
+                if (viewModel.isAddNewNote()) {
+                    viewModel.addNote()
+                } else {
+                    viewModel.updateNote()
+                }
+                onBack()
+            } else {
+                snackBarHostState.showMySnackbar(
+                    message = context.getString(R.string.input_wrong_message),
+                    scope
                 )
             }
-        }) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
-        ) {
-            OutlinedTextField(
-                value = state.value.title,
-                onValueChange = { viewModel.updateTitle(it) },
-                label = { Text(stringResource(R.string.lbl_title)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = state.value.content,
-                onValueChange = { viewModel.updateContent(it) },
-                label = { Text(stringResource(R.string.lbl_content)) },
-                modifier = Modifier.fillMaxWidth()
-            )
+        },
+        onUpdateTitle = { title ->
+            viewModel.updateTitle(title)
+        },
+        onUpdateContent = { content ->
+            viewModel.updateContent(content)
+        },
+        onBack = {
+            onBack()
         }
-    }
-
-    // Handle show/hide delete node confirm dialog
-    when (val state = deleteNodeDialogState) {
-        is DeleteNoteDialogState.Show -> {
-            ConfirmDialog(
-                title = stringResource(R.string.delete_note),
-                message = stringResource(R.string.confirm_delete_note_message),
-                confirmText = stringResource(R.string.OK),
-                cancelText = stringResource(R.string.Cancel),
-                onConfirmed = {
-                    viewModel.deleteNote(state.noteId)
-                    deleteNodeDialogState = DeleteNoteDialogState.Hide
-                    onBack()
-                },
-                onCanceled = {
-                    deleteNodeDialogState = DeleteNoteDialogState.Hide
-                }
-            )
-        }
-
-        DeleteNoteDialogState.Hide -> {
-            // do nothing
-        }
-    }
+    )
 }

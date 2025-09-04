@@ -5,11 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.torilab.domain.model.Note
 import com.torilab.domain.usecase.NoteUseCases
+import com.torilab.note.screens.list.DeleteNoteState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class AddEditNoteViewModel @Inject constructor(
@@ -18,6 +21,12 @@ class AddEditNoteViewModel @Inject constructor(
 ) : ViewModel() {
     private val _noteState = MutableStateFlow(NoteUiState())
     val noteState = _noteState.asStateFlow()
+
+    private var _addUpdateNoteState = Channel<AddUpdateNoteState>(Channel.BUFFERED)
+    val addUpdateNoteState = _addUpdateNoteState.receiveAsFlow()
+
+    private var _deleteNoteState = Channel<DeleteNoteState>(Channel.BUFFERED)
+    val deleteNoteState = _deleteNoteState.receiveAsFlow()
 
     init {
         val noteId = savedStateHandle.get<String>("noteId")?.toLongOrNull()
@@ -66,19 +75,39 @@ class AddEditNoteViewModel @Inject constructor(
     fun isAddNewNote() = _noteState.value.id == 0L
 
     /**
-     * save a note
+     * add a note
      */
-    fun saveNote() {
+    fun addNote() {
         viewModelScope.launch {
             val note = Note(
                 id = _noteState.value.id,
                 title = _noteState.value.title,
                 content = _noteState.value.content
             )
-            if (_noteState.value.id == 0L) {
+            try {
                 useCases.addNote(note)
-            } else {
+                _addUpdateNoteState.send(AddUpdateNoteState.Success(note))
+            } catch (ex: Exception) {
+                _addUpdateNoteState.send(AddUpdateNoteState.Error(ex.message ?: ""))
+            }
+        }
+    }
+
+    /**
+     * update note
+     */
+    fun updateNote() {
+        viewModelScope.launch {
+            val note = Note(
+                id = _noteState.value.id,
+                title = _noteState.value.title,
+                content = _noteState.value.content
+            )
+            try {
                 useCases.updateNote(note)
+                _addUpdateNoteState.send(AddUpdateNoteState.Success(note))
+            } catch (ex: Exception) {
+                _addUpdateNoteState.send(AddUpdateNoteState.Error(ex.message ?: ""))
             }
         }
     }
@@ -87,6 +116,13 @@ class AddEditNoteViewModel @Inject constructor(
      * delete a note by ID's Note
      */
     fun deleteNote(noteId: Long) {
-        viewModelScope.launch { useCases.deleteNote(noteId) }
+        viewModelScope.launch {
+            try {
+                useCases.deleteNote(noteId)
+                _deleteNoteState.send(DeleteNoteState.Success)
+            } catch (ex: Exception) {
+                _deleteNoteState.send(DeleteNoteState.Error(ex.message ?: ""))
+            }
+        }
     }
 }

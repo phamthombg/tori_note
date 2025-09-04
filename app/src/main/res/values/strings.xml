@@ -10,6 +10,8 @@
     <string name="input_wrong_message">Please input Title and Content!</string>
     <string name="delete_note_success_message">Delete note is successfully</string>
     <string name="delete_note_failed_message">Oh! Delete note failed!</string>
+    <string name="save_note_success_message">Save note is successfully</string>
+    <string name="save_note_failed_message">Oh! Save note failed!</string>
     <string name="Cancel">Cancel</string>
     <string name="OK">OK</string>
 </resources>
