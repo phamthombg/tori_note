@@ -23,8 +23,10 @@ class AddEditNoteViewModel @Inject constructor(
         val noteId = savedStateHandle.get<String>("noteId")?.toLongOrNull()
         if (noteId != null) {
             viewModelScope.launch {
+                // get node by noteId from repository
                 val note = useCases.getNoteById(noteId)
-                note?.let {
+                note?.let { // if note is exist
+                    // create a note UI state from note
                     _noteState.value = NoteUiState(
                         id = it.id,
                         title = it.title,
@@ -35,14 +37,31 @@ class AddEditNoteViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Update Note title
+     */
     fun updateTitle(title: String) {
         _noteState.value = _noteState.value.copy(title = title)
     }
 
+    /**
+     * update Note content
+     */
     fun updateContent(content: String) {
         _noteState.value = _noteState.value.copy(content = content)
     }
 
+    /**
+     * Check input is valid or not
+     * @return true if title and content of note is not empty
+     */
+    fun isValid(): Boolean = _noteState.value.run {
+        this.title.isNotEmpty() && this.content.isNotEmpty()
+    }
+
+    /**
+     * save a note
+     */
     fun saveNote() {
         viewModelScope.launch {
             val note = Note(
@@ -50,7 +69,11 @@ class AddEditNoteViewModel @Inject constructor(
                 title = _noteState.value.title,
                 content = _noteState.value.content
             )
-            useCases.addNote(note)
+            if (_noteState.value.id == 0L) {
+                useCases.addNote(note)
+            } else {
+                useCases.updateNote(note)
+            }
         }
     }
 }

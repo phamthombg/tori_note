@@ -1,5 +1,9 @@
 package com.torilab.data.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import com.torilab.data.local.NoteDao
 import com.torilab.data.mapper.toDomain
 import com.torilab.data.mapper.toEntity
@@ -9,11 +13,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class NoteRepositoryImpl(private val noteDao: NoteDao) : NoteRepository {
-    override fun getNotes(): Flow<List<Note>> {
-        return noteDao.getNotes().map { list ->
-            list.map {
-                it.toDomain()
-            }
+    override fun getNotes(): Flow<PagingData<Note>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { noteDao.getNotes() }
+        ).flow.map { pagingData ->
+            pagingData.map { it.toDomain() }
         }
     }
 
@@ -31,5 +39,9 @@ class NoteRepositoryImpl(private val noteDao: NoteDao) : NoteRepository {
 
     override suspend fun deleteNote(id: Long) {
         noteDao.deleteById(id)
+    }
+
+    companion object {
+        const val PAGE_SIZE = 20
     }
 }

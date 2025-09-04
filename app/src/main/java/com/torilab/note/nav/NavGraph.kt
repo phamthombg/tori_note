@@ -9,10 +9,12 @@ import com.torilab.note.add.AddEditNoteScreen
 import com.torilab.note.add.AddEditNoteViewModel
 import com.torilab.note.list.NoteListScreen
 import com.torilab.note.list.NoteListViewModel
+import com.torilab.note.nav.Routes.NODE_ID_ARG
 
 object Routes {
     const val NOTE_LIST = "note_list" // note list
     const val ADD_EDIT_NOTE = "add_edit_note" // add and edit note
+    const val NODE_ID_ARG = "nodeId" // argument for node id
 }
 
 @Composable

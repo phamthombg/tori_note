@@ -34,4 +34,7 @@ kotlin {
 dependencies {
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
+
+    // Paging 3
+    implementation(libs.androidx.room.paging)
 }
