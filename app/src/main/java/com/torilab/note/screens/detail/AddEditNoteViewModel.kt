@@ -1,4 +1,4 @@
-package com.torilab.note.add
+package com.torilab.note.screens.detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

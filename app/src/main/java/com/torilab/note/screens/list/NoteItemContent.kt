@@ -1,4 +1,4 @@
-package com.torilab.note.list
+package com.torilab.note.screens.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

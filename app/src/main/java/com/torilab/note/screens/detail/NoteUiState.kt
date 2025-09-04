@@ -1,4 +1,4 @@
-package com.torilab.note.add
+package com.torilab.note.screens.detail
 
 data class NoteUiState(
     val id: Long = 0L,

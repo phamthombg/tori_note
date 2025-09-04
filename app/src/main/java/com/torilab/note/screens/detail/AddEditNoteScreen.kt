@@ -1,4 +1,4 @@
-package com.torilab.note.add
+package com.torilab.note.screens.detail
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,7 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.torilab.note.R
-import com.torilab.note.list.DeleteNodeDialogState
+import com.torilab.note.screens.list.DeleteNodeDialogState
 import com.torilab.note.ui.dialog.ConfirmDialog
 import com.torilab.note.ui.utils.rememberSafeClick
 import com.torilab.note.ui.utils.showMySnackbar

@@ -1,4 +1,4 @@
-package com.torilab.note.list
+package com.torilab.note.screens.list
 
 sealed interface DeleteNodeDialogState {
     data class Show(val noteId: Long): DeleteNodeDialogState
