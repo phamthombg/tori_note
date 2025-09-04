@@ -7,8 +7,10 @@ import androidx.paging.cachedIn
 import com.torilab.domain.model.Note
 import com.torilab.domain.usecase.NoteUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,8 +20,11 @@ class NoteListViewModel @Inject constructor(
     private val useCases: NoteUseCases
 ) : ViewModel() {
 
+    private var _deleteNoteState = Channel<DeleteNoteState>(Channel.BUFFERED)
+    val deleteNoteState = _deleteNoteState.receiveAsFlow()
+
     var notes: StateFlow<PagingData<Note>> =
-        useCases.getNotes()
+        useCases.getNotes() // get notes from repository via NoteUseCases
             .cachedIn(viewModelScope)
             .stateIn(
                 scope = viewModelScope,
@@ -27,11 +32,17 @@ class NoteListViewModel @Inject constructor(
                 initialValue = PagingData.empty()
             )
 
-
     /**
      * delete a note by ID's Note
      */
     fun deleteNote(noteId: Long) {
-        viewModelScope.launch { useCases.deleteNote(noteId) }
+        viewModelScope.launch {
+            try {
+                useCases.deleteNote(noteId)
+                _deleteNoteState.send(DeleteNoteState.Success)
+            } catch (ex: Exception) {
+                _deleteNoteState.send(DeleteNoteState.Error(ex.message ?: ""))
+            }
+        }
     }
 }

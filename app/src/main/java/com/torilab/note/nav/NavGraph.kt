@@ -24,18 +24,14 @@ fun NotesNavGraph(navController: NavHostController) {
         startDestination = Routes.NOTE_LIST
     ) {
         composable(Routes.NOTE_LIST) {
-            val viewModel: NoteListViewModel = hiltViewModel()
             NoteListScreen(
-                viewModel = viewModel,
                 onNavigateToAddEdit = { noteId ->
                     navController.navigate("${Routes.ADD_EDIT_NOTE}?$NODE_ID_ARG=$noteId")
                 }
             )
         }
         composable("${Routes.ADD_EDIT_NOTE}?$NODE_ID_ARG={noteId}") {
-            val viewModel: AddEditNoteViewModel = hiltViewModel()
             AddEditNoteScreen(
-                viewModel = viewModel,
                 onBack = { navController.popBackStack() }
             )
         }

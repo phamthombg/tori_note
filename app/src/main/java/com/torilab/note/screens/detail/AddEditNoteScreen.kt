@@ -30,8 +30,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.torilab.note.R
-import com.torilab.note.screens.list.DeleteNodeDialogState
+import com.torilab.note.screens.list.DeleteNoteDialogState
 import com.torilab.note.ui.dialog.ConfirmDialog
 import com.torilab.note.ui.utils.rememberSafeClick
 import com.torilab.note.ui.utils.showMySnackbar
@@ -39,13 +40,15 @@ import com.torilab.note.ui.utils.showMySnackbar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditNoteScreen(
-    viewModel: AddEditNoteViewModel, onBack: () -> Unit
+    onBack: () -> Unit
 ) {
+    val viewModel: AddEditNoteViewModel = hiltViewModel()
+
     val state = viewModel.noteState.collectAsState()
     // state of delete note dialog, default is Hide state
-    var deleteNodeDialogState: DeleteNodeDialogState by remember {
+    var deleteNodeDialogState: DeleteNoteDialogState by remember {
         mutableStateOf(
-            DeleteNodeDialogState.Hide
+            DeleteNoteDialogState.Hide
         )
     }
     val snackBarHostState = remember { SnackbarHostState() }
@@ -82,7 +85,7 @@ fun AddEditNoteScreen(
                         val safeClick = rememberSafeClick()
                         IconButton(onClick = {
                             safeClick {
-                                deleteNodeDialogState = DeleteNodeDialogState.Show(state.value.id)
+                                deleteNodeDialogState = DeleteNoteDialogState.Show(state.value.id)
                             }
                         }) {
                             Icon(
@@ -141,7 +144,7 @@ fun AddEditNoteScreen(
 
     // Handle show/hide delete node confirm dialog
     when (val state = deleteNodeDialogState) {
-        is DeleteNodeDialogState.Show -> {
+        is DeleteNoteDialogState.Show -> {
             ConfirmDialog(
                 title = stringResource(R.string.delete_note),
                 message = stringResource(R.string.confirm_delete_note_message),
@@ -149,16 +152,16 @@ fun AddEditNoteScreen(
                 cancelText = stringResource(R.string.Cancel),
                 onConfirmed = {
                     viewModel.deleteNote(state.noteId)
-                    deleteNodeDialogState = DeleteNodeDialogState.Hide
+                    deleteNodeDialogState = DeleteNoteDialogState.Hide
                     onBack()
                 },
                 onCanceled = {
-                    deleteNodeDialogState = DeleteNodeDialogState.Hide
+                    deleteNodeDialogState = DeleteNoteDialogState.Hide
                 }
             )
         }
 
-        DeleteNodeDialogState.Hide -> {
+        DeleteNoteDialogState.Hide -> {
             // do nothing
         }
     }
