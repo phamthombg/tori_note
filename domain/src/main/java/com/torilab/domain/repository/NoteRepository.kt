@@ -28,11 +28,11 @@ interface NoteRepository {
      * Update an exist node
      * @param note: update node
      */
-    suspend fun updateNote(note: Note)
+    suspend fun updateNote(note: Note): Result<Unit>
 
     /**
      * Delete a note
      * @param id: note id
      */
-    suspend fun deleteNote(id: Long)
+    suspend fun deleteNote(id: Long): Result<Unit>
 }

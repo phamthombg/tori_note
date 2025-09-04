@@ -9,7 +9,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -37,4 +37,7 @@ dependencies {
 
     // Paging 3
     implementation(libs.androidx.room.paging)
+
+    // Test
+    testImplementation(libs.mockk)
 }

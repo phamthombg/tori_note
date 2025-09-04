@@ -9,8 +9,10 @@ import com.torilab.data.mapper.toDomain
 import com.torilab.data.mapper.toEntity
 import com.torilab.domain.model.Note
 import com.torilab.domain.repository.NoteRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 
 class NoteRepositoryImpl(private val noteDao: NoteDao) : NoteRepository {
     override fun getNotes(): Flow<PagingData<Note>> {
@@ -33,12 +35,20 @@ class NoteRepositoryImpl(private val noteDao: NoteDao) : NoteRepository {
         return noteDao.insert(note.toEntity())
     }
 
-    override suspend fun updateNote(note: Note) {
-        noteDao.update(note.toEntity())
+    override suspend fun updateNote(note: Note): Result<Unit> {
+        return runCatching {
+            withContext(Dispatchers.IO) {
+                noteDao.update(note.toEntity())
+            }
+        }
     }
 
-    override suspend fun deleteNote(id: Long) {
-        noteDao.deleteById(id)
+    override suspend fun deleteNote(id: Long): Result<Unit> {
+        return runCatching {
+            withContext(Dispatchers.IO) {
+                noteDao.deleteById(id)
+            }
+        }
     }
 
     companion object {

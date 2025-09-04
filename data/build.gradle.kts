@@ -10,7 +10,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -36,6 +36,8 @@ dependencies {
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.room.paging)
 
+    // Test
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
 }
