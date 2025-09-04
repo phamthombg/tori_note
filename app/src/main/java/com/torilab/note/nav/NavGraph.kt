@@ -2,14 +2,11 @@ package com.torilab.note.nav
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.torilab.note.nav.Routes.NODE_ID_ARG
 import com.torilab.note.screens.detail.AddEditNoteScreen
-import com.torilab.note.screens.detail.AddEditNoteViewModel
 import com.torilab.note.screens.list.NoteListScreen
-import com.torilab.note.screens.list.NoteListViewModel
 
 object Routes {
     const val NOTE_LIST = "note_list" // note list

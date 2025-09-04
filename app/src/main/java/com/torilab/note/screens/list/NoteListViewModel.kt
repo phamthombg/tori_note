@@ -34,6 +34,7 @@ class NoteListViewModel @Inject constructor(
 
     /**
      * delete a note by ID's Note
+     * @param noteId note id
      */
     fun deleteNote(noteId: Long) {
         viewModelScope.launch {
