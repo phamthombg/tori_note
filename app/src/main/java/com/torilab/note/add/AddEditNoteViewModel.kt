@@ -60,6 +60,12 @@ class AddEditNoteViewModel @Inject constructor(
     }
 
     /**
+     * check add new note or update note?
+     * @return true if new note, false in remaining case
+     */
+    fun isAddNewNote() = _noteState.value.id == 0L
+
+    /**
      * save a note
      */
     fun saveNote() {
@@ -75,5 +81,12 @@ class AddEditNoteViewModel @Inject constructor(
                 useCases.updateNote(note)
             }
         }
+    }
+
+    /**
+     * delete a note by ID's Note
+     */
+    fun deleteNote(noteId: Long) {
+        viewModelScope.launch { useCases.deleteNote(noteId) }
     }
 }

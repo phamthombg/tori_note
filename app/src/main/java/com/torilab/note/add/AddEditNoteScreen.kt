@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -19,14 +20,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.torilab.note.R
+import com.torilab.note.list.DeleteNodeDialogState
+import com.torilab.note.ui.dialog.ConfirmDialog
 import com.torilab.note.ui.utils.rememberSafeClick
 import com.torilab.note.ui.utils.showMySnackbar
 
@@ -36,34 +42,56 @@ fun AddEditNoteScreen(
     viewModel: AddEditNoteViewModel, onBack: () -> Unit
 ) {
     val state = viewModel.noteState.collectAsState()
+    // state of delete note dialog, default is Hide state
+    var deleteNodeDialogState: DeleteNodeDialogState by remember {
+        mutableStateOf(
+            DeleteNodeDialogState.Hide
+        )
+    }
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
     Scaffold(
         topBar = {
-            TopAppBar(title = {
-                Text(
-                    text = if (state.value.id == 0L) {
-                        stringResource(R.string.add_note)
-                    } else {
-                        stringResource(R.string.edit_note)
-                    }
-                )
-            }, navigationIcon = {
-                val safeClick = rememberSafeClick()
-                IconButton(
-                    onClick = {
-                        safeClick {
-                            onBack()
+            TopAppBar(
+                title = {
+                    Text(
+                        text = if (state.value.id == 0L) {
+                            stringResource(R.string.add_note)
+                        } else {
+                            stringResource(R.string.edit_note)
                         }
-                    }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_back),
-                        contentDescription = "Back"
                     )
-                }
-            })
+                }, navigationIcon = {
+                    val safeClick = rememberSafeClick()
+                    IconButton(
+                        onClick = {
+                            safeClick {
+                                onBack()
+                            }
+                        }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_back),
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                actions = {
+                    if (state.value.id != 0L) {
+                        val safeClick = rememberSafeClick()
+                        IconButton(onClick = {
+                            safeClick {
+                                deleteNodeDialogState = DeleteNodeDialogState.Show(state.value.id)
+                            }
+                        }) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "Search"
+                            )
+                        }
+                    }
+                })
         },
         snackbarHost = {
             SnackbarHost(snackBarHostState)
@@ -108,6 +136,30 @@ fun AddEditNoteScreen(
                 label = { Text(stringResource(R.string.lbl_content)) },
                 modifier = Modifier.fillMaxWidth()
             )
+        }
+    }
+
+    // Handle show/hide delete node confirm dialog
+    when (val state = deleteNodeDialogState) {
+        is DeleteNodeDialogState.Show -> {
+            ConfirmDialog(
+                title = stringResource(R.string.delete_note),
+                message = stringResource(R.string.confirm_delete_note_message),
+                confirmText = stringResource(R.string.OK),
+                cancelText = stringResource(R.string.Cancel),
+                onConfirmed = {
+                    viewModel.deleteNote(state.noteId)
+                    deleteNodeDialogState = DeleteNodeDialogState.Hide
+                    onBack()
+                },
+                onCanceled = {
+                    deleteNodeDialogState = DeleteNodeDialogState.Hide
+                }
+            )
+        }
+
+        DeleteNodeDialogState.Hide -> {
+            // do nothing
         }
     }
 }
