@@ -19,6 +19,8 @@ The app demonstrates **Clean Architecture**, **Jetpack Compose UI**, and persist
 
 <img width="270" height="600" alt="Image" src="https://github.com/phamthombg/tori_note/blob/main/screenshots/note_detail.png" />
 
+<img width="270" height="600" alt="Image" src="https://github.com/phamthombg/tori_note/blob/main/screenshots/delete_note.png" />
+
 ---
 
 ## Installation note
