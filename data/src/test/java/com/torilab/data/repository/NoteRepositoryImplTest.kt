@@ -3,14 +3,9 @@ package com.torilab.data.repository
 import com.torilab.data.local.NoteDao
 import com.torilab.data.local.NoteEntity
 import com.torilab.domain.model.Note
-import com.torilab.domain.repository.NoteRepository
-import com.torilab.domain.usecase.GetNotesUseCase
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

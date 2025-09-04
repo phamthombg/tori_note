@@ -33,11 +33,12 @@ kotlin {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    testImplementation(libs.junit)
 
     // Paging 3
     implementation(libs.androidx.room.paging)
 
     // Test
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
 }
